@@ -1,6 +1,6 @@
 ﻿using GestaoProdutos.Domain.Entities;
 using GestaoProdutos.Domain.Filters;
-using GestaoProdutos.Domain.Interfaces;
+using GestaoProdutos.Domain.Interfaces.Repositories;
 using GestaoProdutos.Infrastructure.Context;
 using GestaoProdutos.Infrastructure.Repositories;
 using GestaoProdutos.Tests.Mocks;
@@ -75,11 +75,11 @@ namespace GestaoProdutos.Tests.Repositorios
             var filtro = new ProdutoFiltro { Descricao = "Produto", Situacao = "A" };
 
             // Act
-            var produtosPaginados = await _produtoRepository.ListarComFiltroEPaginacao(filtro, pagina: 1, quantidade: 10);
+            var produtosPaginados = await _produtoRepository.ListarComFiltroEPaginacao(filtro);
 
             // Assert
             Assert.NotNull(produtosPaginados);
-            Assert.Equal(3, produtosPaginados.Count());
+            Assert.Equal(3, produtosPaginados.Items.Count());
         }
 
         [Fact]
@@ -99,23 +99,6 @@ namespace GestaoProdutos.Tests.Repositorios
             var produtoAtualizado = await dbContext.Produtos.FirstOrDefaultAsync(p => p.Id == produto.Id);
             Assert.NotNull(produtoAtualizado);
             Assert.Equal(produto.Descricao, produtoAtualizado.Descricao);
-        }
-
-        [Fact]
-        public async Task ExcluirProduto_DeveExcluirProdutoDoBanco()
-        {
-            // Arrange
-            using var dbContext = new GestaoProdutosContext(_dbContextOptions, _configuration);
-            var produto = ProdutoMock.RetornarProdutoMock("A");
-            await dbContext.Produtos.AddAsync(produto);
-            await dbContext.SaveChangesAsync();
-
-            // Act
-            await _produtoRepository.Excluir(produto.Id);
-
-            // Assert
-            var produtoExcluido = await dbContext.Produtos.FirstOrDefaultAsync(p => p.Id == produto.Id);
-            Assert.Null(produtoExcluido);
         }
 
         private async Task InserirProdutosDeTeste(GestaoProdutosContext dbContext)

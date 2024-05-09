@@ -1,9 +1,24 @@
-﻿namespace GestaoProdutos.Domain.Entities
+﻿using GestaoProdutos.Domain.Dtos;
+
+namespace GestaoProdutos.Domain.Entities
 {
     public class Fornecedor : EntityBase
     {
-        public string Descricao { get; set; }
-        public string CNPJ { get; set; }
-        public string Situacao { get; set; }
+        protected Fornecedor() { }
+
+        public Fornecedor(FornecedorDto dto)
+        {
+            Descricao = dto.Descricao;
+            Cnpj = dto.Cnpj;
+            Situacao = dto.Situacao;
+        }
+        public string Descricao { get; private set; }
+        public string Cnpj { get; private set; }
+
+        public void Atualizar(FornecedorDto fornecedorDto)
+        {
+            Descricao = fornecedorDto.Descricao;
+            Cnpj = fornecedorDto.Cnpj;
+        }
     }
 }

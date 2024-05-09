@@ -2,6 +2,7 @@
 {
     public class EntityBase
     {
-        public long Id { get; private set; }
+        public long Id { get; set; }
+        public string Situacao { get; set; }
     }
 }

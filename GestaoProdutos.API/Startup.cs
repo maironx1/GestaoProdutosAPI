@@ -1,3 +1,4 @@
+using GestaoProdutos.API.Helpers;
 using GestaoProdutos.Infrastructure.Context;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -23,6 +24,8 @@ namespace GestaoProdutos.API
         {
             services.AddDbContext<GestaoProdutosContext>(options =>
                 options.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
+
+            services.AddAutoMapper(typeof(AutoMapperProfile));
 
             services.AddControllers();
             services.AddSwaggerGen(c =>

@@ -3,14 +3,16 @@ using System;
 using GestaoProdutos.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace GestaoProdutos.Infrastructure.Migrations
 {
     [DbContext(typeof(GestaoProdutosContext))]
-    partial class GestaoProdutosContextModelSnapshot : ModelSnapshot
+    [Migration("20240509024409_Id_Sequencial")]
+    partial class Id_Sequencial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

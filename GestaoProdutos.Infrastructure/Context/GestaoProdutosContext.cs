@@ -1,4 +1,5 @@
 ﻿using GestaoProdutos.Domain.Entities;
+using GestaoProdutos.Infrastructure.Mappings;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
@@ -28,26 +29,8 @@ namespace GestaoProdutos.Infrastructure.Context
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Produto>(entity =>
-            {
-                entity.HasKey(e => e.Id);
-                entity.Property(e => e.Descricao).IsRequired();
-                entity.Property(e => e.Situacao).IsRequired();
-                entity.Property(e => e.DataFabricacao);
-                entity.Property(e => e.DataValidade);
-                entity.HasOne(e => e.Fornecedor)
-                      .WithMany()
-                      .HasForeignKey(e => e.FornecedorId)
-                      .IsRequired();
-            });
-
-            modelBuilder.Entity<Fornecedor>(entity =>
-            {
-                entity.HasKey(e => e.Id);
-                entity.Property(e => e.Descricao).IsRequired();
-                entity.Property(e => e.CNPJ).IsRequired();
-                entity.Property(e => e.Situacao).IsRequired();
-            });
+            modelBuilder.ApplyConfiguration(new ProdutoMapping());
+            modelBuilder.ApplyConfiguration(new FornecedorMapping());
         }
     }
 }

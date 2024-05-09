@@ -9,5 +9,8 @@ namespace GestaoProdutos.Domain.Filters
         public DateTime? DataFabricacao { get; set; }
         public DateTime? DataValidade { get; set; }
         public int? FornecedorId { get; set; }
+        public string Cnpj { get; set; }
+        public int ItemsByPage { get; set; } = 1;
+        public int PageIndex { get; set; } = 1;
     }
 }

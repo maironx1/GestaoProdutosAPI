@@ -1,6 +1,7 @@
 ﻿using GestaoProdutos.Domain.Entities;
-using GestaoProdutos.Domain.Interfaces;
+using GestaoProdutos.Domain.Interfaces.Repositories;
 using GestaoProdutos.Infrastructure.Context;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -16,29 +17,27 @@ namespace GestaoProdutos.Infrastructure.Repositories
         }
 
 
-        public Task Atualizar(TEntity produto)
+        public async Task Atualizar(TEntity entity)
         {
-            throw new System.NotImplementedException();
+            _dbContext.Set<TEntity>().Update(entity);
+            await _dbContext.SaveChangesAsync();
         }
 
-        public Task Excluir(long id)
+        public async Task Inserir(TEntity entity)
         {
-            throw new System.NotImplementedException();
+            await _dbContext.Set<TEntity>().AddAsync(entity);
+            await _dbContext.SaveChangesAsync();
         }
 
-        public Task Inserir(TEntity produto)
+        public async Task<IEnumerable<TEntity>> ListarTodos()
         {
-            throw new System.NotImplementedException();
+            return await _dbContext.Set<TEntity>().ToListAsync();
         }
 
-        public Task<IEnumerable<TEntity>> ListarTodos()
+        public virtual async Task<TEntity> RecuperarPorId(long id)
         {
-            throw new System.NotImplementedException();
-        }
-
-        public Task<TEntity> RecuperarPorId(long id)
-        {
-            throw new System.NotImplementedException();
+            return await _dbContext.Set<TEntity>()
+                .FirstOrDefaultAsync(e => e.Id == id);
         }
     }
 }
