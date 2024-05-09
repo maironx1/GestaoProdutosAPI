@@ -5,6 +5,7 @@ using GestaoProdutos.Infrastructure.Context;
 using GestaoProdutos.Infrastructure.Repositories;
 using GestaoProdutos.Tests.Mocks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
@@ -15,21 +16,26 @@ namespace GestaoProdutos.Tests.Repositorios
     {
         private readonly DbContextOptions<GestaoProdutosContext> _dbContextOptions;
         private readonly IProdutoRepository _produtoRepository;
+        private readonly IConfiguration _configuration;
 
         public ProdutoRepositoryTests()
         {
+            _configuration = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json")
+                .Build();
+
             _dbContextOptions = new DbContextOptionsBuilder<GestaoProdutosContext>()
                 .UseInMemoryDatabase(databaseName: "TesteRepository")
                 .Options;
 
-            _produtoRepository = new ProdutoRepository(new GestaoProdutosContext(_dbContextOptions));
+            _produtoRepository = new ProdutoRepository(new GestaoProdutosContext(_dbContextOptions, _configuration));
         }
 
         [Fact]
         public async Task Inserir_DeveInserirProdutoDoBanco()
         {
             // Arrange
-            using var dbContext = new GestaoProdutosContext(_dbContextOptions);
+            using var dbContext = new GestaoProdutosContext(_dbContextOptions, _configuration);
             var produto = ProdutoMock.RetornarProdutoMock("A");
 
             // Act
@@ -46,7 +52,7 @@ namespace GestaoProdutos.Tests.Repositorios
         public async Task RecuperarPorId_DeveRetornarProdutoCorreto()
         {
             // Arrange
-            using var dbContext = new GestaoProdutosContext(_dbContextOptions);
+            using var dbContext = new GestaoProdutosContext(_dbContextOptions, _configuration);
             var produto = ProdutoMock.RetornarProdutoMock("A");
             await dbContext.Produtos.AddAsync(produto);
             await dbContext.SaveChangesAsync();
@@ -64,7 +70,7 @@ namespace GestaoProdutos.Tests.Repositorios
         public async Task ListarComFiltroEPaginacao_DeveRetornarProdutosFiltradosComPaginacao()
         {
             // Arrange
-            using var dbContext = new GestaoProdutosContext(_dbContextOptions);
+            using var dbContext = new GestaoProdutosContext(_dbContextOptions, _configuration);
             await InserirProdutosDeTeste(dbContext);
             var filtro = new ProdutoFiltro { Descricao = "Produto", Situacao = "A" };
 
@@ -80,7 +86,7 @@ namespace GestaoProdutos.Tests.Repositorios
         public async Task AtualizarProduto_DeveAtualizarProdutoDoBanco()
         {
             // Arrange
-            using var dbContext = new GestaoProdutosContext(_dbContextOptions);
+            using var dbContext = new GestaoProdutosContext(_dbContextOptions, _configuration);
             var produto = ProdutoMock.RetornarProdutoMock("A");
             await dbContext.Produtos.AddAsync(produto);
             await dbContext.SaveChangesAsync();
@@ -99,7 +105,7 @@ namespace GestaoProdutos.Tests.Repositorios
         public async Task ExcluirProduto_DeveExcluirProdutoDoBanco()
         {
             // Arrange
-            using var dbContext = new GestaoProdutosContext(_dbContextOptions);
+            using var dbContext = new GestaoProdutosContext(_dbContextOptions, _configuration);
             var produto = ProdutoMock.RetornarProdutoMock("A");
             await dbContext.Produtos.AddAsync(produto);
             await dbContext.SaveChangesAsync();

@@ -8,7 +8,7 @@ namespace GestaoProdutos.Domain.Entities
         public string Situacao { get; set; }
         public DateTime? DataFabricacao { get; set; }
         public DateTime? DataValidade { get; set; }
-        public int? FornecedorId { get; set; }
+        public long? FornecedorId { get; set; }
 
         // Navegação para o Fornecedor
         public Fornecedor Fornecedor { get; set; }

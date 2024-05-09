@@ -1,16 +1,28 @@
 ﻿using GestaoProdutos.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace GestaoProdutos.Infrastructure.Context
 {
     public class GestaoProdutosContext : DbContext
     {
-        public GestaoProdutosContext(DbContextOptions<GestaoProdutosContext> options) : base(options)
+        private readonly IConfiguration _configuration;
+
+        public GestaoProdutosContext(DbContextOptions<GestaoProdutosContext> options, IConfiguration configuration) : base(options)
         {
+            _configuration = configuration;
         }
 
         public DbSet<Produto> Produtos { get; set; }
         public DbSet<Fornecedor> Fornecedores { get; set; }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+                optionsBuilder.UseSqlite(_configuration.GetConnectionString("DefaultConnection"));
+            }
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -26,7 +38,7 @@ namespace GestaoProdutos.Infrastructure.Context
                 entity.HasOne(e => e.Fornecedor)
                       .WithMany()
                       .HasForeignKey(e => e.FornecedorId)
-                      .OnDelete(DeleteBehavior.Restrict); 
+                      .IsRequired();
             });
 
             modelBuilder.Entity<Fornecedor>(entity =>
