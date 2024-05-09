@@ -2,6 +2,7 @@
 using GestaoProdutos.Domain.Filters;
 using GestaoProdutos.Domain.Interfaces;
 using GestaoProdutos.Infrastructure.Context;
+using GestaoProdutos.Infrastructure.Repositories;
 using GestaoProdutos.Tests.Mocks;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
@@ -20,6 +21,8 @@ namespace GestaoProdutos.Tests.Repositorios
             _dbContextOptions = new DbContextOptionsBuilder<GestaoProdutosContext>()
                 .UseInMemoryDatabase(databaseName: "TesteRepository")
                 .Options;
+
+            _produtoRepository = new ProdutoRepository(new GestaoProdutosContext(_dbContextOptions));
         }
 
         [Fact]
@@ -62,7 +65,6 @@ namespace GestaoProdutos.Tests.Repositorios
         {
             // Arrange
             using var dbContext = new GestaoProdutosContext(_dbContextOptions);
-            var produto = ProdutoMock.RetornarProdutoMock("A");
             await InserirProdutosDeTeste(dbContext);
             var filtro = new ProdutoFiltro { Descricao = "Produto", Situacao = "A" };
 

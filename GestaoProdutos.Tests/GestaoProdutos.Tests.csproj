@@ -22,8 +22,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\GestaoProdutos.Domain\GestaoProdutos.Domain\GestaoProdutos.Domain.csproj" />
-    <ProjectReference Include="..\..\GestaoProdutos.Infrastructure\GestaoProdutos.Infrastructure\GestaoProdutos.Infrastructure.csproj" />
+    <ProjectReference Include="..\GestaoProdutos.Domain\GestaoProdutos.Domain.csproj" />
+    <ProjectReference Include="..\GestaoProdutos.Infrastructure\GestaoProdutos.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
