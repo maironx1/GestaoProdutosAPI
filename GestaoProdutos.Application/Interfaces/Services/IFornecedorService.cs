@@ -1,8 +1,8 @@
-﻿using GestaoProdutos.Domain.Dtos;
+﻿using GestaoProdutos.Application.Dtos;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace GestaoProdutos.Domain.Interfaces.Services
+namespace GestaoProdutos.Application.Interfaces.Services
 {
     public interface IFornecedorService
     {

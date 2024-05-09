@@ -1,4 +1,5 @@
-﻿using GestaoProdutos.Domain.Dtos;
+﻿using AutoMapper;
+using GestaoProdutos.Application.Dtos;
 using GestaoProdutos.Domain.Entities;
 
 namespace GestaoProdutos.Tests.Builders
@@ -8,6 +9,13 @@ namespace GestaoProdutos.Tests.Builders
         private readonly string _descricao = "descricao";
         private readonly string _cnpj = "cnpj";
 
+        private readonly IMapper _mapper;
+
+        public FornecedorBuilder(IMapper mapper)
+        {
+            _mapper = mapper;
+        }
+
         public Fornecedor Build()
         {
             var fornecedordto = new FornecedorDto()
@@ -16,7 +24,7 @@ namespace GestaoProdutos.Tests.Builders
                 Descricao = _descricao
             };
 
-            return new Fornecedor(fornecedordto);
+            return _mapper.Map<Fornecedor>(fornecedordto);
         }
     }
 }

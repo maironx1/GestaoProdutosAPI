@@ -1,10 +1,9 @@
-﻿using GestaoProdutos.Domain.Dtos;
-using GestaoProdutos.Domain.Entities;
+﻿using GestaoProdutos.Application.Dtos;
 using GestaoProdutos.Domain.Filters;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace GestaoProdutos.Domain.Interfaces.Services
+namespace GestaoProdutos.Application.Interfaces.Services
 {
     public interface IProdutoService
     {

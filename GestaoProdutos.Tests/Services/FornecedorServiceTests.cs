@@ -1,25 +1,29 @@
 ﻿using FluentAssertions;
-using GestaoProdutos.Domain.Dtos;
+using GestaoProdutos.Application.Dtos;
 using GestaoProdutos.Domain.Entities;
 using GestaoProdutos.Domain.Interfaces.Repositories;
-using GestaoProdutos.Domain.Services;
+using GestaoProdutos.Application.Services;
 using GestaoProdutos.Tests.Builders;
 using NSubstitute;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
+using AutoMapper;
+using GestaoProdutos.Application.Interfaces.Services;
 
 namespace GestaoProdutos.Tests.Services
 {
     public class FornecedorServiceTests
     {
         private readonly IFornecedorRepository _fornecedorRepository;
-        private readonly FornecedorService _fornecedorService;
+        private readonly IFornecedorService _fornecedorService;
+        private readonly IMapper _mapper;
 
         public FornecedorServiceTests()
         {
             _fornecedorRepository = Substitute.For<IFornecedorRepository>();
-            _fornecedorService = new FornecedorService(_fornecedorRepository);
+            _mapper = Substitute.For<IMapper>();
+            _fornecedorService = new FornecedorService(_fornecedorRepository, _mapper);
         }
 
         [Fact]
@@ -47,7 +51,7 @@ namespace GestaoProdutos.Tests.Services
         public async Task DeveRetoornarTodosFornecedores()
         {
             //arrange
-            var fornecedor = new FornecedorBuilder().Build();
+            var fornecedor = new FornecedorBuilder(_mapper).Build();
             _fornecedorRepository.ListarTodos().Returns(new List<Fornecedor>() { fornecedor });
             //action
             var result = await _fornecedorService.ListarTodosFornecedores();
@@ -82,7 +86,7 @@ namespace GestaoProdutos.Tests.Services
                 Cnpj = "Test"
             };
 
-            var fornecedor = new FornecedorBuilder().Build();
+            var fornecedor = new FornecedorBuilder(_mapper).Build();
             _fornecedorRepository.RecuperarPorId(dto.Id).Returns(fornecedor);
 
             //action

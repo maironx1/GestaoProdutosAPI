@@ -1,4 +1,5 @@
-﻿using GestaoProdutos.Domain.Dtos;
+﻿using AutoMapper;
+using GestaoProdutos.Application.Dtos;
 using GestaoProdutos.Domain.Entities;
 using System;
 
@@ -11,6 +12,13 @@ namespace GestaoProdutos.Tests.Builders
         private DateTime _dataValidade = DateTime.Now.AddDays(1);
         private long _fornecedorId = 1;
         private string _situacao = "A";
+
+        private readonly IMapper _mapper;
+
+        public ProdutoBuilder(IMapper mapper)
+        {
+            _mapper = mapper;
+        }
 
         public ProdutoBuilder ComDescricao(string descricao)
         {
@@ -53,7 +61,7 @@ namespace GestaoProdutos.Tests.Builders
                 FornecedorId = _fornecedorId
             };
 
-            return new Produto(dto);
+            return _mapper.Map<Produto>(dto);
         }
     }
 }

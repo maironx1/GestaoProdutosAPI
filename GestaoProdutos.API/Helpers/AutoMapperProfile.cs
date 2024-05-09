@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using GestaoProdutos.Domain.Dtos;
+using GestaoProdutos.Application.Dtos;
 using GestaoProdutos.Domain.Entities;
 
 namespace GestaoProdutos.API.Helpers
@@ -8,8 +8,12 @@ namespace GestaoProdutos.API.Helpers
     {
         public AutoMapperProfile()
         {
-            CreateMap<Produto, ProdutoDto>().ReverseMap();
-            CreateMap<Fornecedor, FornecedorDto>().ReverseMap();
+            CreateMap<Produto, ProdutoDto>();
+            CreateMap<ProdutoDto, Produto>();
+            CreateMap<Fornecedor, FornecedorDto>();
+            CreateMap<FornecedorDto, Fornecedor>();
+            CreateMap(typeof(Paginacao<>), typeof(PaginacaoDto<>));
+            CreateMap(typeof(PaginacaoDto<>), typeof(Paginacao<>));
         }
     }
 }

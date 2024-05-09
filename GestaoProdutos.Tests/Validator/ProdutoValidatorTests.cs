@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using AutoMapper;
+using FluentAssertions;
 using GestaoProdutos.Domain.Validators;
 using GestaoProdutos.Tests.Builders;
 using System;
@@ -9,11 +10,18 @@ namespace GestaoProdutos.Tests.Validator
 {
     public class ProdutoValidatorTests
     {
+        private readonly IMapper _mapper;
+
+        public ProdutoValidatorTests(IMapper mapper)
+        {
+            _mapper = mapper;
+        }
+
         [Fact]
         public void DataFabricacaoDeveSerAnteriorDataValidade()
         {
             //arrange
-            var product = new ProdutoBuilder()
+            var product = new ProdutoBuilder(_mapper)
                 .ComDataFabricacao(DateTime.Now.AddDays(1))
                 .ComDataValidade(DateTime.Now)
                 .Build();
@@ -32,7 +40,7 @@ namespace GestaoProdutos.Tests.Validator
         public void DescricaoNaoInformado()
         {
             //arrange
-            var product = new ProdutoBuilder()
+            var product = new ProdutoBuilder(_mapper)
                 .ComDescricao(null)
                 .Build();
 
@@ -50,7 +58,7 @@ namespace GestaoProdutos.Tests.Validator
         public void FornecedorInvalido()
         {
             //arrange
-            var product = new ProdutoBuilder()
+            var product = new ProdutoBuilder(_mapper)
                 .ComFornecedorId(0)
                 .Build();
 
@@ -68,7 +76,7 @@ namespace GestaoProdutos.Tests.Validator
         public void ProdutoVazio()
         {
             //arrange
-            var product = new ProdutoBuilder()
+            var product = new ProdutoBuilder(_mapper)
                 .Build();
 
             var validator = new ProductValidator();

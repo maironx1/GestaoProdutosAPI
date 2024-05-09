@@ -1,5 +1,4 @@
-﻿using GestaoProdutos.Domain.Dtos;
-using GestaoProdutos.Domain.Entities;
+﻿using GestaoProdutos.Domain.Entities;
 using GestaoProdutos.Domain.Filters;
 using GestaoProdutos.Domain.Interfaces.Repositories;
 using GestaoProdutos.Infrastructure.Context;
@@ -15,7 +14,7 @@ namespace GestaoProdutos.Infrastructure.Repositories
         {
         }
 
-        public async Task<PaginacaoDto<Produto>> ListarComFiltroEPaginacao(ProdutoFiltro filtro)
+        public async Task<Paginacao<Produto>> ListarComFiltroEPaginacao(ProdutoFiltro filtro)
         {
             var query = _dbContext.Set<Produto>()
                 .Include(x => x.Fornecedor)
@@ -27,7 +26,7 @@ namespace GestaoProdutos.Infrastructure.Repositories
             query = AplicarPaginacao(filtro, query);
             var products = await query.ToListAsync();
 
-            return new PaginacaoDto<Produto>
+            return new Paginacao<Produto>
             {
                 Items = products,
                 TotalItems = totalItems,

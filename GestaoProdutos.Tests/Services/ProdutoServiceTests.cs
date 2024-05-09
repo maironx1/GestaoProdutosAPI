@@ -1,10 +1,11 @@
-﻿using FluentAssertions;
-using GestaoProdutos.Domain.Dtos;
+﻿using AutoMapper;
+using FluentAssertions;
+using GestaoProdutos.Application.Dtos;
+using GestaoProdutos.Application.Interfaces.Services;
+using GestaoProdutos.Application.Services;
 using GestaoProdutos.Domain.Entities;
 using GestaoProdutos.Domain.Filters;
 using GestaoProdutos.Domain.Interfaces.Repositories;
-using GestaoProdutos.Domain.Interfaces.Services;
-using GestaoProdutos.Domain.Services;
 using GestaoProdutos.Tests.Builders;
 using NSubstitute;
 using System;
@@ -18,11 +19,13 @@ namespace GestaoProdutos.Tests.Services
     {
         private readonly IProdutoRepository _produtoRepository;
         private readonly IProdutoService _produtoService;
+        private readonly IMapper _mapper;
 
         public ProdutoServiceTests()
         {
             _produtoRepository = Substitute.For<IProdutoRepository>();
-            _produtoService = new ProdutoService(_produtoRepository);
+            _mapper = Substitute.For<IMapper>();
+            _produtoService = new ProdutoService(_produtoRepository, _mapper);
         }
 
         [Fact]
@@ -70,7 +73,7 @@ namespace GestaoProdutos.Tests.Services
         public async Task DeveAtualizarProdutoAoExcluir()
         {
             //arrange
-            var produto = new ProdutoBuilder().Build();
+            var produto = new ProdutoBuilder(_mapper).Build();
             _produtoRepository.RecuperarPorId(produto.Id).Returns(produto);
 
             //action
@@ -98,7 +101,7 @@ namespace GestaoProdutos.Tests.Services
         {
             //arrange
             var filter = new ProdutoFiltro();
-            var produto = new ProdutoBuilder().Build();
+            var produto = new ProdutoBuilder(_mapper).Build();
 
             var produtos = new PaginacaoDto<Produto>
             {
@@ -108,7 +111,7 @@ namespace GestaoProdutos.Tests.Services
                 Items = new List<Produto>() { produto }
             };
 
-            _produtoRepository.ListarComFiltroEPaginacao(filter).Returns(produtos);
+            _produtoRepository.ListarComFiltroEPaginacao(filter).Returns(_mapper.Map<Paginacao<Produto>>(produtos));
 
             //action
             var response = await _produtoService.ListarProdutosComFiltroEPaginacao(filter);
@@ -124,7 +127,7 @@ namespace GestaoProdutos.Tests.Services
         public async Task DeveRetornarProdutoPorId()
         {
             //arrange
-            var produto = new ProdutoBuilder().Build();
+            var produto = new ProdutoBuilder(_mapper).Build();
             _produtoRepository.RecuperarPorId(produto.Id).Returns(produto);
 
             //action
@@ -159,7 +162,7 @@ namespace GestaoProdutos.Tests.Services
                 FornecedorId = 1
             };
 
-            var produto = new ProdutoBuilder().Build();
+            var produto = new ProdutoBuilder(_mapper).Build();
             _produtoRepository.RecuperarPorId(dto.Id).Returns(produto);
 
             //action
@@ -200,7 +203,7 @@ namespace GestaoProdutos.Tests.Services
         {
             // arrange
             var dto = new ProdutoDto();
-            var produto = new ProdutoBuilder().Build();
+            var produto = new ProdutoBuilder(_mapper).Build();
             _produtoRepository.RecuperarPorId(dto.Id).Returns(produto);
 
             // action

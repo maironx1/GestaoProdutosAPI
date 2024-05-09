@@ -19,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\GestaoProdutos.Application\GestaoProdutos.Application.csproj" />
     <ProjectReference Include="..\GestaoProdutos.Infrastructure\GestaoProdutos.Infrastructure.csproj" />
   </ItemGroup>
 

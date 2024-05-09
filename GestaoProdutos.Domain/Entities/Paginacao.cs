@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 
-namespace GestaoProdutos.Domain.Dtos
+namespace GestaoProdutos.Domain.Entities
 {
-    public class PaginacaoDto<P>
+    public class Paginacao<P>
     {
         public int TotalItems { get; set; }
         public int ItemsByPage { get; set; }

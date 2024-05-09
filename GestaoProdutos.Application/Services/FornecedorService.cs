@@ -1,25 +1,28 @@
-﻿using GestaoProdutos.Domain.Dtos;
+﻿using GestaoProdutos.Application.Dtos;
 using GestaoProdutos.Domain.Entities;
 using GestaoProdutos.Domain.Interfaces.Repositories;
-using GestaoProdutos.Domain.Interfaces.Services;
+using GestaoProdutos.Application.Interfaces.Services;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 
-namespace GestaoProdutos.Domain.Services
+namespace GestaoProdutos.Application.Services
 {
     public class FornecedorService : IFornecedorService
     {
         private readonly IFornecedorRepository _fornecedorRepository;
+        private readonly IMapper _mapper;
 
-        public FornecedorService(IFornecedorRepository fornecedorRepository)
+        public FornecedorService(IFornecedorRepository fornecedorRepository, IMapper mapper)
         {
             _fornecedorRepository = fornecedorRepository;
+            _mapper = mapper;
         }
 
         public async Task InserirFornecedor(FornecedorDto fornecedorDto)
         {
-            var fornecedor = new Fornecedor(fornecedorDto);
+            var fornecedor = _mapper.Map<Fornecedor>(fornecedorDto);
             await _fornecedorRepository.Inserir(fornecedor);
         }
 
@@ -44,7 +47,7 @@ namespace GestaoProdutos.Domain.Services
                 return;
             }
 
-            fornecedores.Atualizar(fornecedorDto);
+            fornecedores = _mapper.Map<Fornecedor>(fornecedorDto);
             await _fornecedorRepository.Atualizar(fornecedores);
         }
     }

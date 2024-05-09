@@ -1,5 +1,6 @@
-﻿using FluentAssertions;
-using GestaoProdutos.Domain.Dtos;
+﻿using AutoMapper;
+using FluentAssertions;
+using GestaoProdutos.Application.Dtos;
 using GestaoProdutos.Domain.Entities;
 using GestaoProdutos.Tests.Builders;
 using System;
@@ -9,6 +10,13 @@ namespace GestaoProdutos.Tests.Entidades
 {
     public class ProdutoTests
     {
+        private readonly IMapper _mapper;
+
+        public ProdutoTests(IMapper mapper)
+        {
+            _mapper = mapper;
+        }
+
         [Fact]
         public void DeveCriarProdutoValido()
         {
@@ -25,7 +33,7 @@ namespace GestaoProdutos.Tests.Entidades
             };
 
             //action
-            var produto = new Produto(dto);
+            var produto = _mapper.Map<Produto>(dto);
 
             //assert
             produto.Situacao.Should().Be(dto.Situacao);
@@ -39,7 +47,7 @@ namespace GestaoProdutos.Tests.Entidades
         public void DeveDesativarProduto()
         {
             //arrange
-            var produto = new ProdutoBuilder()
+            var produto = new ProdutoBuilder(_mapper)
                 .Build();
 
             //action
@@ -53,7 +61,7 @@ namespace GestaoProdutos.Tests.Entidades
         public void DeveAtivarProduto()
         {
             //arrange
-            var produto = new ProdutoBuilder()
+            var produto = new ProdutoBuilder(_mapper)
                 .Build();
 
             //action
@@ -67,7 +75,7 @@ namespace GestaoProdutos.Tests.Entidades
         public void DeveRetornarErroDataFabricacaoSuperiorDataValidade()
         {
             //arrange
-            var produto = new ProdutoBuilder()
+            var produto = new ProdutoBuilder(_mapper)
                 .ComDataFabricacao(DateTime.Now.AddDays(1))
                 .ComDataValidade(DateTime.Now)
                 .Build();

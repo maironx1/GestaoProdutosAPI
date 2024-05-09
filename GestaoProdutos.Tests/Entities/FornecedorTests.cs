@@ -1,5 +1,6 @@
-﻿using FluentAssertions;
-using GestaoProdutos.Domain.Dtos;
+﻿using AutoMapper;
+using FluentAssertions;
+using GestaoProdutos.Application.Dtos;
 using GestaoProdutos.Domain.Entities;
 using GestaoProdutos.Tests.Builders;
 using Xunit;
@@ -8,6 +9,13 @@ namespace GestaoProdutos.Tests.Entities
 {
     public class FornecedorTests
     {
+        private readonly IMapper _mapper;
+
+        public FornecedorTests(IMapper mapper)
+        {
+            _mapper = mapper;
+        }
+
         [Fact]
         public void DeveCriarFornecedor()
         {
@@ -19,7 +27,7 @@ namespace GestaoProdutos.Tests.Entities
             };
 
             //action
-            var entity = new Fornecedor(dto);
+            var entity = _mapper.Map<Fornecedor>(dto);
 
             //assert
             entity.Cnpj.Should().Be(dto.Cnpj);
@@ -30,7 +38,7 @@ namespace GestaoProdutos.Tests.Entities
         public void DeveAtualizarFornecedor()
         {
             //arrange
-            var entity = new FornecedorBuilder().Build();
+            var entity = new FornecedorBuilder(_mapper).Build();
             var dto = new FornecedorDto()
             {
                 Cnpj = "12354",
@@ -38,7 +46,7 @@ namespace GestaoProdutos.Tests.Entities
             };
 
             //action
-            entity.Atualizar(dto);
+            entity = _mapper.Map<Fornecedor>(dto);
 
             //assert
             entity.Cnpj.Should().Be(dto.Cnpj);

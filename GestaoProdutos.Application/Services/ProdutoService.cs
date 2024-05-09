@@ -1,27 +1,30 @@
-﻿using GestaoProdutos.Domain.Dtos;
+﻿using AutoMapper;
+using GestaoProdutos.Application.Dtos;
+using GestaoProdutos.Application.Interfaces.Services;
 using GestaoProdutos.Domain.Entities;
 using GestaoProdutos.Domain.Filters;
 using GestaoProdutos.Domain.Interfaces.Repositories;
-using GestaoProdutos.Domain.Interfaces.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace GestaoProdutos.Domain.Services
+namespace GestaoProdutos.Application.Services
 {
     public class ProdutoService : IProdutoService
     {
         private readonly IProdutoRepository _produtoRepository;
+        private readonly IMapper _mapper;
 
-        public ProdutoService(IProdutoRepository produtoRepository)
+        public ProdutoService(IProdutoRepository produtoRepository, IMapper mapper)
         {
             _produtoRepository = produtoRepository;
+            _mapper = mapper;
         }
 
         public async Task InserirProduto(ProdutoDto produtoDto)
         {
-            var produto = new Produto(produtoDto);
+            var produto = _mapper.Map<Produto>(produtoDto);
 
             ValidarEntidade(produto);
 
@@ -46,7 +49,7 @@ namespace GestaoProdutos.Domain.Services
                 return;
             }
 
-            produto.Atualizar(produtoDto);
+            produto = _mapper.Map<Produto>(produtoDto);
             ValidarEntidade(produto);
 
             await _produtoRepository.Atualizar(produto);
