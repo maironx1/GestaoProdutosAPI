@@ -3,12 +3,12 @@ using GestaoProdutos.Domain.Entities;
 
 namespace GestaoProdutos.Domain.Validators
 {
-    public class ProductValidator : AbstractValidator<Produto>
+    public class ProdutoValidator : AbstractValidator<Produto>
     {
-        public ProductValidator()
+        public ProdutoValidator()
         {
-            RuleFor(product => product.DataFabricacao)
-                .LessThan(product => product.DataValidade)
+            RuleFor(produto => produto.DataFabricacao)
+                .LessThan(produto => produto.DataValidade)
                 .WithMessage("A data de fabricação deve ser anterior à data de validade.");
 
             RuleFor(x => x.Descricao)

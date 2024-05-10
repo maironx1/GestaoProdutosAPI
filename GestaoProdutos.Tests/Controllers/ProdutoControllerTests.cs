@@ -186,6 +186,46 @@ namespace GestaoProdutos.Tests.Controllers
             response.Should().BeNull();
         }
 
+        [Fact]
+        public async Task ListarProdutos_QuandoHaProdutos_DeveRetornarOkComListaDeProdutos()
+        {
+            // Arrange
+            var produtosDto = new List<ProdutoDto>
+            {
+                new ProdutoDto { Id = 1, Descricao = "Fornecedor 1" },
+                new ProdutoDto { Id = 2, Descricao = "Fornecedor 2" }
+            };
+
+            _produtoServiceMock.Setup(s => s.ListarTodosProdutos()).ReturnsAsync(produtosDto);
+
+            // Act
+            var result = await _produtoController.ListarProdutos();
+
+            // Assert
+            result.Should().BeOfType<OkObjectResult>();
+            var okResult = result as OkObjectResult;
+            var fornecedoresResponse = okResult.Value as IEnumerable<ProdutoResponse>;
+            fornecedoresResponse.Should().NotBeNull();
+            fornecedoresResponse.Should().HaveCount(2);
+        }
+
+        [Fact]
+        public async Task ListarProdutos_QuandoNaoHaProdutos_DeveRetornarOkComListaVazia()
+        {
+            // Arrange
+            _produtoServiceMock.Setup(s => s.ListarTodosProdutos()).ReturnsAsync(new List<ProdutoDto>().AsEnumerable());
+
+            // Act
+            var result = await _produtoController.ListarProdutos();
+
+            // Assert
+            result.Should().BeOfType<OkObjectResult>();
+            var okResult = result as OkObjectResult;
+            var fornecedoresResponse = okResult.Value as IEnumerable<ProdutoResponse>;
+            fornecedoresResponse.Should().NotBeNull();
+            fornecedoresResponse.Should().BeEmpty();
+        }
+
         private ProdutoRequest RetornarProdutoRequest()
         {
             return new ProdutoRequest

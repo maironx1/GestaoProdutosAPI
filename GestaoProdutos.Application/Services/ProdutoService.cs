@@ -26,6 +26,7 @@ namespace GestaoProdutos.Application.Services
         {
             var produto = _mapper.Map<Produto>(produtoDto);
 
+            produto.Ativar();
             ValidarEntidade(produto);
 
             await _produtoRepository.Inserir(produto);
@@ -36,7 +37,7 @@ namespace GestaoProdutos.Application.Services
             var validationResult = produto.IsValid();
             if (validationResult != null && validationResult.Errors.Any())
             {
-                throw new Exception(validationResult.Errors.First().ErrorMessage);
+                throw new Exception(validationResult.Errors.First()?.ErrorMessage);
             }
         }
 
@@ -49,7 +50,19 @@ namespace GestaoProdutos.Application.Services
                 return;
             }
 
-            produto = _mapper.Map<Produto>(produtoDto);
+            var properties = produtoDto.GetType().GetProperties();
+            foreach (var property in properties)
+            {
+                var value = property.GetValue(produtoDto);
+                if (value != null)
+                {
+                    var entityProperty = produto.GetType().GetProperty(property.Name);
+                    if (entityProperty != null && entityProperty.CanWrite)
+                    {
+                        entityProperty.SetValue(produto, value);
+                    }
+                }
+            }
             ValidarEntidade(produto);
 
             await _produtoRepository.Atualizar(produto);

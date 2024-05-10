@@ -41,7 +41,7 @@ namespace GestaoProdutos.Tests.Validator
             produto.DataFabricacao = DateTime.Now.Date.AddDays(1);
             produto.DataValidade = DateTime.Now.Date;
 
-            var validator = new ProductValidator();
+            var validator = new ProdutoValidator();
 
             //action
             var response = validator.Validate(produto);
@@ -59,7 +59,7 @@ namespace GestaoProdutos.Tests.Validator
                 .Build();
             produto.Descricao = null;
 
-            var validator = new ProductValidator();
+            var validator = new ProdutoValidator();
 
             //action
             var response = validator.Validate(produto);
@@ -77,7 +77,7 @@ namespace GestaoProdutos.Tests.Validator
                 .Build();
             produto.FornecedorId = 0;
 
-            var validator = new ProductValidator();
+            var validator = new ProdutoValidator();
 
             //action
             var response = validator.Validate(produto);
@@ -91,13 +91,13 @@ namespace GestaoProdutos.Tests.Validator
         public void Produto_QuandoVazio_DeveRetornarMensagemErro()
         {
             //arrange
-            var product = new ProdutoBuilder(_mapper)
+            var produto = new ProdutoBuilder(_mapper)
                 .Build();
 
-            var validator = new ProductValidator();
+            var validator = new ProdutoValidator();
 
             //action
-            var response = validator.Validate(product);
+            var response = validator.Validate(produto);
 
             //assert
             response.Errors.Should().BeEmpty();

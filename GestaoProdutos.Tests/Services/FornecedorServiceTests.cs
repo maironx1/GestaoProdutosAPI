@@ -133,6 +133,43 @@ namespace GestaoProdutos.Tests.Services
         }
 
         [Fact]
+        public async Task RemoverFornecedor_QuandoEncontraId_DeveAtualizarFornecedor()
+        {
+            // Arrange
+            var dto = new FornecedorDto()
+            {
+                Id = 1,
+                Descricao = "teste"
+            };
+
+            var fornecedor = new FornecedorBuilder(_mapper).Build();
+            Mock.Get(_fornecedorRepository).Setup(r => r.RecuperarPorId(dto.Id)).ReturnsAsync(fornecedor);
+
+            // Action
+            await _fornecedorService.RemoverFornecedor(dto.Id);
+
+            // Assert
+            Mock.Get(_fornecedorRepository).Verify(r => r.Atualizar(It.IsAny<Fornecedor>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task RemoverFornecedor_QuandoNaoEncontraId_NaoDeveAtualizarFornecedor()
+        {
+            // Arrange
+            var dto = new FornecedorDto()
+            {
+                Id = 1,
+                Descricao = "teste"
+            };
+
+            // Action
+            await _fornecedorService.RemoverFornecedor(dto.Id);
+
+            // Assert
+            Mock.Get(_fornecedorRepository).Verify(r => r.Atualizar(It.IsAny<Fornecedor>()), Times.Never);
+        }
+
+        [Fact]
         public async Task RecuperarPorId_QuandoIdValido_DeveRetornarFornecedorPorId()
         {
             // Arrange

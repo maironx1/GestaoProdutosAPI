@@ -24,7 +24,7 @@ namespace GestaoProdutos.API.Controllers
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
-        [HttpPost]
+        [HttpPost("/InserirProduto")]
         public async Task<IActionResult> InserirProduto([FromBody] ProdutoRequest produtoRequest)
         {
             try
@@ -45,8 +45,8 @@ namespace GestaoProdutos.API.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var productDto = _mapper.Map<ProdutoDto>(produtoRequest);
-                await _produtoService.InserirProduto(productDto);
+                var produtoDto = _mapper.Map<ProdutoDto>(produtoRequest);
+                await _produtoService.InserirProduto(produtoDto);
                 return Ok();
             }
             catch (Exception ex)
@@ -55,7 +55,7 @@ namespace GestaoProdutos.API.Controllers
             }
         }
 
-        [HttpPut("{produtoId}")]
+        [HttpPut("/AtualizarProduto/{produtoId}")]
         public async Task<IActionResult> AtualizarProduto(long produtoId, [FromBody] ProdutoRequest produtoRequest)
         {
             try
@@ -65,7 +65,7 @@ namespace GestaoProdutos.API.Controllers
                     var errorResponse = new ErrorResponse
                     {
                         Codigo = "Dados inválidos",
-                        Mensagem = "Requisição inválida: o objeto ProdutoRequest não pode ser nulo."
+                        Mensagem = "Requisição inválida: o ID do produto não pode ser zero."
                     };
 
                     return BadRequest(errorResponse);
@@ -78,9 +78,9 @@ namespace GestaoProdutos.API.Controllers
 
                 if (produtoRequest != null)
                 {
-                    var productDto = _mapper.Map<ProdutoDto>(produtoRequest);
-                    productDto.Id = produtoId;
-                    await _produtoService.AtualizarProduto(productDto);
+                    var produtoDto = _mapper.Map<ProdutoDto>(produtoRequest);
+                    produtoDto.Id = produtoId;
+                    await _produtoService.AtualizarProduto(produtoDto);
                 }
 
                 return Ok();
@@ -91,7 +91,7 @@ namespace GestaoProdutos.API.Controllers
             }
         }
 
-        [HttpDelete("{produtoId}")]
+        [HttpDelete("/RemoverProduto/{produtoId}")]
         public async Task<IActionResult> RemoverProduto([FromRoute] long produtoId)
         {
             try
@@ -101,7 +101,7 @@ namespace GestaoProdutos.API.Controllers
                     var errorResponse = new ErrorResponse
                     {
                         Codigo = "Dados inválidos",
-                        Mensagem = "Requisição inválida: o objeto ProdutoRequest não pode ser nulo."
+                        Mensagem = "Requisição inválida: o ID do produto não pode ser zero."
                     };
 
                     return BadRequest(errorResponse);
@@ -117,30 +117,39 @@ namespace GestaoProdutos.API.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpGet("/ListarProdutos")]
+        public async Task<IActionResult> ListarProdutos()
+        {
+            var produtos = await _produtoService.ListarTodosProdutos();
+            var produtosResponse = produtos.Select(f => _mapper.Map<ProdutoResponse>(f));
+
+            return Ok(produtosResponse);
+        }
+
+        [HttpGet("/ListarProdutosComFiltroEPaginacao")]
         public async Task<PaginacaoDto<ProdutoResponse>> ListarProdutosComFiltroEPaginacao([FromQuery] ProdutoFiltro produtoFilter)
         {
-            var products = await _produtoService.ListarProdutosComFiltroEPaginacao(produtoFilter);
+            var produtos = await _produtoService.ListarProdutosComFiltroEPaginacao(produtoFilter);
             return new PaginacaoDto<ProdutoResponse>()
             {
-                Items = products.Items.Select(x => _mapper.Map<ProdutoResponse>(x)),
-                ItemsByPage = products.ItemsByPage,
-                PageIndex = products.PageIndex,
-                TotalItems = products.TotalItems,
+                Items = produtos.Items.Select(x => _mapper.Map<ProdutoResponse>(x)),
+                ItemsByPage = produtos.ItemsByPage,
+                PageIndex = produtos.PageIndex,
+                TotalItems = produtos.TotalItems,
             };
         }
 
-        [HttpGet("{productId}")]
+        [HttpGet("/RecuperarProdutoPorId/{produtoId}")]
         public async Task<ProdutoResponse> RecuperarProdutoPorId([FromRoute] long produtoId)
         {
-            var product = await _produtoService.RecuperarProdutoPorId(produtoId);
+            var produto = await _produtoService.RecuperarProdutoPorId(produtoId);
 
-            if (product is null)
+            if (produto is null)
             {
                 return default;
             }
 
-            return _mapper.Map<ProdutoResponse>(product);
+            return _mapper.Map<ProdutoResponse>(produto);
         }
 
         private ObjectResult BuildError(string mensagem)

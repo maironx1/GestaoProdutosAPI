@@ -24,11 +24,11 @@ namespace GestaoProdutos.Infrastructure.Repositories
             var totalItems = query.Count();
 
             query = AplicarPaginacao(filtro, query);
-            var products = await query.ToListAsync();
+            var produtos = await query.ToListAsync();
 
             return new Paginacao<Produto>
             {
-                Items = products,
+                Items = produtos,
                 TotalItems = totalItems,
                 ItemsByPage = filtro.ItemsByPage,
                 PageIndex = filtro.PageIndex

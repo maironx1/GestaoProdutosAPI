@@ -23,7 +23,7 @@ namespace GestaoProdutos.API.Controllers
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
-        [HttpPost]
+        [HttpPost("/InserirFornecedor")]
         public async Task<IActionResult> InserirFornecedor([FromBody] FornecedorRequest fornecedorRequest)
         {
             try
@@ -43,6 +43,7 @@ namespace GestaoProdutos.API.Controllers
                     return BadRequest(ModelState);
 
                 var fornecedorDto = _mapper.Map<FornecedorDto>(fornecedorRequest);
+
                 await _fornecedorService.InserirFornecedor(fornecedorDto);
 
                 return Ok();
@@ -53,7 +54,7 @@ namespace GestaoProdutos.API.Controllers
             }
         }
 
-        [HttpPut("{fornecedorId}")]
+        [HttpPut("/AtualizarFornecedor/{fornecedorId}")]
         public async Task<IActionResult> AtualizarFornecedor(long fornecedorId, [FromBody] FornecedorRequest fornecedorRequest)
         {
             try
@@ -85,7 +86,33 @@ namespace GestaoProdutos.API.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpDelete("/RemoverFornecedor/{fornecedorId}")]
+        public async Task<IActionResult> RemoverFornecedor([FromRoute] long fornecedorId)
+        {
+            try
+            {
+                if (fornecedorId == 0)
+                {
+                    var errorResponse = new ErrorResponse
+                    {
+                        Codigo = "Dados inválidos",
+                        Mensagem = "Requisição inválida: o ID do fornecedor não pode ser zero"
+                    };
+
+                    return BadRequest(errorResponse);
+                }
+
+                await _fornecedorService.RemoverFornecedor(fornecedorId);
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BuildError(ex.Message);
+            }
+        }
+
+        [HttpGet("/ListarFornecedores")]
         public async Task<IActionResult> ListarFornecedores()
         {
             var fornecedores = await _fornecedorService.ListarTodosFornecedores();
@@ -94,7 +121,7 @@ namespace GestaoProdutos.API.Controllers
             return Ok(fornecedoresResponse);
         }
 
-        [HttpGet("{fornecedorId}")]
+        [HttpGet("/RecuperarFornecedorPorId/{fornecedorId}")]
         public async Task<IActionResult> RecuperarFornecedorPorId(long fornecedorId)
         {
             try
@@ -121,7 +148,7 @@ namespace GestaoProdutos.API.Controllers
             }
         }
 
-        [HttpGet("cnpj/{cnpj}")]
+        [HttpGet("/RecuperarFornecedorPorCnpj/{cnpj}")]
         public async Task<IActionResult> RecuperarFornecedorPorCnpj(string cnpj)
         {
             try

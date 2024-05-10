@@ -23,6 +23,6 @@ namespace GestaoProdutos.Domain.Entities
             Situacao = "I";
         }
 
-        public ValidationResult IsValid() => new ProductValidator().Validate(this);
+        public ValidationResult IsValid() => new ProdutoValidator().Validate(this);
     }
 }

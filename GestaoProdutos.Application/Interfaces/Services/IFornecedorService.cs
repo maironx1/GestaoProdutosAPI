@@ -9,6 +9,7 @@ namespace GestaoProdutos.Application.Interfaces.Services
         Task InserirFornecedor(FornecedorDto fornecedorDto);
         Task<IEnumerable<FornecedorDto>> ListarTodosFornecedores();
         Task AtualizarFornecedor(FornecedorDto fornecedorDto);
+        Task RemoverFornecedor(long id);
         Task<FornecedorDto> RecuperarFornecedorPorId(long id);
         Task<FornecedorDto> RecuperarFornecedorPorCnpj(string cnpj);
     }

@@ -79,6 +79,19 @@ namespace GestaoProdutos.Tests.Controllers
         }
 
         [Fact]
+        public async Task RemoverFornecedor_IdValido_ReturnsOkResult()
+        {
+            // Arrange
+            var produtoId = 1;
+
+            // Act
+            var result = await _fornecedorController.RemoverFornecedor(produtoId);
+
+            // Assert
+            result.Should().BeOfType<OkResult>();
+        }
+
+        [Fact]
         public async Task ListarFornecedores_QuandoHaFornecedores_DeveRetornarOkComListaDeFornecedores()
         {
             // Arrange
