@@ -53,8 +53,8 @@
 - AutoMapper
 ## Testes
 - Pirâmide de Testes (TDD)
+- Stryker Dotnet (Teste de Mutação) - PENDENTE
 
 ## Extensões utilizadas
 - Fine Code Coverage (Validação de cobertura de teste das classes)
 - SonarLint (Melhoria de código em tempo real)
-- Stryker Dotnet (Teste de Mutação) - PENDENTE
