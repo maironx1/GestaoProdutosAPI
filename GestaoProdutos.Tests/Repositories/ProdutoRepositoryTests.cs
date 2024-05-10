@@ -17,6 +17,7 @@ namespace GestaoProdutos.Tests.Repositorios
         private readonly DbContextOptions<GestaoProdutosContext> _dbContextOptions;
         private readonly IProdutoRepository _produtoRepository;
         private readonly IConfiguration _configuration;
+        private readonly GestaoProdutosContext _context;
 
         public ProdutoRepositoryTests()
         {
@@ -28,21 +29,23 @@ namespace GestaoProdutos.Tests.Repositorios
                 .UseInMemoryDatabase(databaseName: "TesteRepository")
                 .Options;
 
-            _produtoRepository = new ProdutoRepository(new GestaoProdutosContext(_dbContextOptions, _configuration));
+            _context = new GestaoProdutosContext(_dbContextOptions, _configuration);
+
+            _produtoRepository = new ProdutoRepository(_context);
         }
 
         [Fact]
         public async Task Inserir_DeveInserirProdutoDoBanco()
         {
             // Arrange
-            using var dbContext = new GestaoProdutosContext(_dbContextOptions, _configuration);
-            var produto = ProdutoMock.RetornarProdutoMock("A");
+            var fornecedorMock = new Fornecedor { Cnpj = "123456", Id = 2 };
+            var produto = ProdutoMock.RetornarProdutoMock("A", fornecedorMock);
 
             // Act
             await _produtoRepository.Inserir(produto);
 
             // Assert
-            var produtoInserido = await dbContext.Produtos.FirstOrDefaultAsync(p => p.Id == produto.Id);
+            var produtoInserido = await _context.Produtos.FirstOrDefaultAsync(p => p.Id == produto.Id);
             Assert.NotNull(produtoInserido);
             Assert.Equal(produto.Descricao, produtoInserido.Descricao);
             Assert.Equal(produto.Situacao, produtoInserido.Situacao);
@@ -52,10 +55,10 @@ namespace GestaoProdutos.Tests.Repositorios
         public async Task RecuperarPorId_DeveRetornarProdutoCorreto()
         {
             // Arrange
-            using var dbContext = new GestaoProdutosContext(_dbContextOptions, _configuration);
-            var produto = ProdutoMock.RetornarProdutoMock("A");
-            await dbContext.Produtos.AddAsync(produto);
-            await dbContext.SaveChangesAsync();
+            var fornecedorMock = new Fornecedor { Cnpj = "123456", Id = 3 };
+            var produto = ProdutoMock.RetornarProdutoMock("A", fornecedorMock);
+            await _context.Produtos.AddAsync(produto);
+            await _context.SaveChangesAsync();
 
             // Act
             var produtoRecuperado = await _produtoRepository.RecuperarPorId(produto.Id);
@@ -70,45 +73,44 @@ namespace GestaoProdutos.Tests.Repositorios
         public async Task ListarComFiltroEPaginacao_DeveRetornarProdutosFiltradosComPaginacao()
         {
             // Arrange
-            using var dbContext = new GestaoProdutosContext(_dbContextOptions, _configuration);
-            await InserirProdutosDeTeste(dbContext);
-            var filtro = new ProdutoFiltro { Descricao = "Produto", Situacao = "A" };
+            await InserirProdutosDeTeste();
+            var filtro = new ProdutoFiltro { Descricao = "Produto", Situacao = "A", ItemsByPage = 2 };
 
             // Act
             var produtosPaginados = await _produtoRepository.ListarComFiltroEPaginacao(filtro);
 
             // Assert
             Assert.NotNull(produtosPaginados);
-            Assert.Equal(3, produtosPaginados.Items.Count());
+            Assert.Equal(2, produtosPaginados.Items.Count());
         }
 
         [Fact]
         public async Task AtualizarProduto_DeveAtualizarProdutoDoBanco()
         {
             // Arrange
-            using var dbContext = new GestaoProdutosContext(_dbContextOptions, _configuration);
-            var produto = ProdutoMock.RetornarProdutoMock("A");
-            await dbContext.Produtos.AddAsync(produto);
-            await dbContext.SaveChangesAsync();
+            var fornecedorMock = new Fornecedor { Cnpj = "123456", Id = 7 };
+            var produto = ProdutoMock.RetornarProdutoMock("A", fornecedorMock);
+            await _context.Produtos.AddAsync(produto);
+            await _context.SaveChangesAsync();
             produto.Descricao = "Produto Atualizado";
 
             // Act
             await _produtoRepository.Atualizar(produto);
 
             // Assert
-            var produtoAtualizado = await dbContext.Produtos.FirstOrDefaultAsync(p => p.Id == produto.Id);
+            var produtoAtualizado = await _context.Produtos.FirstOrDefaultAsync(p => p.Id == produto.Id);
             Assert.NotNull(produtoAtualizado);
             Assert.Equal(produto.Descricao, produtoAtualizado.Descricao);
         }
 
-        private async Task InserirProdutosDeTeste(GestaoProdutosContext dbContext)
+        private async Task InserirProdutosDeTeste()
         {
-            await dbContext.Produtos.AddRangeAsync(
-                new Produto { Descricao = "Produto 1", Situacao = "A" },
-                new Produto { Descricao = "Produto 2", Situacao = "A" },
-                new Produto { Descricao = "Produto 3", Situacao = "I" }
+            _context.Produtos.AddRange(
+                new Produto { Descricao = "Produto 1", Situacao = "A", DataFabricacao = System.DateTime.Now, DataValidade = System.DateTime.Now, FornecedorId = 10, Fornecedor = new Fornecedor { Cnpj = "123456", Id = 10 } },
+                new Produto { Descricao = "Produto 2", Situacao = "A", DataFabricacao = System.DateTime.Now, DataValidade = System.DateTime.Now, FornecedorId = 11, Fornecedor = new Fornecedor { Cnpj = "123457", Id = 11 } },
+                new Produto { Descricao = "Produto 3", Situacao = "I", DataFabricacao = System.DateTime.Now, DataValidade = System.DateTime.Now, FornecedorId = 12, Fornecedor = new Fornecedor { Cnpj = "123458", Id = 12 } }
             );
-            await dbContext.SaveChangesAsync();
+            await _context.SaveChangesAsync();
         }
     }
 }

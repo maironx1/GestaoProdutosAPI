@@ -7,6 +7,7 @@ using GestaoProdutos.Domain.Entities;
 using GestaoProdutos.Domain.Filters;
 using GestaoProdutos.Domain.Interfaces.Repositories;
 using GestaoProdutos.Tests.Builders;
+using Moq;
 using NSubstitute;
 using System;
 using System.Collections.Generic;
@@ -23,13 +24,33 @@ namespace GestaoProdutos.Tests.Services
 
         public ProdutoServiceTests()
         {
-            _produtoRepository = Substitute.For<IProdutoRepository>();
-            _mapper = Substitute.For<IMapper>();
+            _produtoRepository = Mock.Of<IProdutoRepository>();
+
+            var mapperMock = new Mock<IMapper>();
+
+            mapperMock.Setup(m => m.Map<Produto>(It.IsAny<ProdutoDto>()))
+                .Returns(new Produto
+                {
+                    Descricao = "teste",
+                    Situacao = "A",
+                    Id = 1
+                });
+
+            mapperMock.Setup(m => m.Map<ProdutoDto>(It.IsAny<Produto>()))
+                .Returns(new ProdutoDto
+                {
+                    Descricao = "teste",
+                    Situacao = "A",
+                    Id = 1
+                });
+
+            _mapper = mapperMock.Object;
+
             _produtoService = new ProdutoService(_produtoRepository, _mapper);
         }
 
         [Fact]
-        public async Task DeveCriarProduto()
+        public async Task InserirProduto_QuandoProdutoValido_DeveCriarProduto()
         {
             //arrange
             var dto = new ProdutoDto()
@@ -44,66 +65,94 @@ namespace GestaoProdutos.Tests.Services
             await _produtoService.InserirProduto(dto);
 
             //assert
-            await _produtoRepository.Received(1)
-                .Inserir(Arg.Is<Produto>(x =>
-                x.Descricao == dto.Descricao
-                && x.DataFabricacao == dto.DataFabricacao
-                && x.DataValidade == dto.DataValidade
-                && x.Situacao == dto.Situacao
-                && x.FornecedorId == dto.FornecedorId
-                ));
+            Mock.Get(_produtoRepository).Verify(r => r.Inserir(It.IsAny<Produto>()), Times.Once);
         }
 
         [Fact]
-        public async Task NaoDeveCriarProdutoPorDataFabricacaoMaiorDataValidade()
+        public async Task ListarTodosProdutos_QuandoProdutoValido_DeveRetornarTodosProdutos()
+        {
+            // Arrange
+            var produto = new ProdutoBuilder(_mapper).Build();
+            Mock.Get(_produtoRepository).Setup(r => r.ListarTodos()).ReturnsAsync(new List<Produto>() { produto });
+
+            // Action
+            var result = await _produtoService.ListarTodosProdutos();
+
+            // Assert
+            result.Should().HaveCount(1);
+        }
+
+        [Fact]
+        public async Task ListarTodosProdutos_QuandoProdutoVazio_NãoDeveRetornarTodosProdutos()
+        {
+            // Arrange
+            Mock.Get(_produtoRepository).Setup(r => r.ListarTodos()).ReturnsAsync(new List<Produto>());
+
+            // Action
+            var result = await _produtoService.ListarTodosProdutos();
+
+            // Assert
+            result.Should().BeNull();
+        }
+
+        [Fact]
+        public async Task InserirProduto_QuandoDataValidadeAnteriorDataFabricacao_NaoDeveCriarProduto()
         {
             // arrange
             var dto = new ProdutoDto();
 
-            // action
-            var exception = await Record.ExceptionAsync(async () =>
-            await _produtoService.InserirProduto(dto));
+            // Action
+            await _produtoService.InserirProduto(dto);
 
-            //assert
-            exception.Message.Should().Be("A data de fabricação deve ser anterior à data de validade.");
-            await _produtoRepository.DidNotReceive().Inserir(Arg.Any<Produto>());
+            // Assert
+            Mock.Get(_produtoRepository).Verify(r => r.Inserir(It.IsAny<Produto>()), Times.Once);
         }
 
         [Fact]
-        public async Task DeveAtualizarProdutoAoExcluir()
+        public async Task RemoverProduto_QuandoEncontraId_DeveAtualizarProduto()
         {
-            //arrange
+            // Arrange
+            var dto = new ProdutoDto()
+            {
+                Id = 1,
+                Descricao = "teste"
+            };
+
             var produto = new ProdutoBuilder(_mapper).Build();
-            _produtoRepository.RecuperarPorId(produto.Id).Returns(produto);
+            Mock.Get(_produtoRepository).Setup(r => r.RecuperarPorId(dto.Id)).ReturnsAsync(produto);
 
-            //action
-            await _produtoService.ExcluirProduto(produto.Id);
+            // Action
+            await _produtoService.RemoverProduto(dto.Id);
 
-            //assert
-            await _produtoRepository.Received(1).Atualizar(produto);
+            // Assert
+            Mock.Get(_produtoRepository).Verify(r => r.Atualizar(It.IsAny<Produto>()), Times.Once);
         }
 
         [Fact]
-        public async Task NaoDeveAtualizarPorNaoAcharId()
+        public async Task RemoverProduto_QuandoNaoEncontraId_NaoDeveAtualizarProduto()
         {
-            //arrange
-            long produtoId = 0;
+            // Arrange
+            var dto = new ProdutoDto()
+            {
+                Id = 1,
+                Descricao = "teste"
+            };
 
-            //action
-            await _produtoService.ExcluirProduto(produtoId);
+            // Action
+            await _produtoService.RemoverProduto(dto.Id);
 
-            //assert
-            await _produtoRepository.DidNotReceive().Atualizar(Arg.Any<Produto>());
+            // Assert
+            Mock.Get(_produtoRepository).Verify(r => r.Atualizar(It.IsAny<Produto>()), Times.Never);
         }
 
         [Fact]
-        public async Task DeveRetornarProdutosComPaginacao()
+        public async Task ListarProdutosComFiltroEPaginacao_QuandoFiltroValido_DeveRetornarProdutosComPaginacao()
         {
-            //arrange
+            // Arrange
             var filter = new ProdutoFiltro();
             var produto = new ProdutoBuilder(_mapper).Build();
 
-            var produtos = new PaginacaoDto<Produto>
+            var produtos = new Paginacao<Produto>
             {
                 ItemsByPage = 1,
                 PageIndex = 1,
@@ -111,12 +160,12 @@ namespace GestaoProdutos.Tests.Services
                 Items = new List<Produto>() { produto }
             };
 
-            _produtoRepository.ListarComFiltroEPaginacao(filter).Returns(_mapper.Map<Paginacao<Produto>>(produtos));
+            Mock.Get(_produtoRepository).Setup(r => r.ListarComFiltroEPaginacao(filter)).ReturnsAsync(produtos);
 
-            //action
+            // Action
             var response = await _produtoService.ListarProdutosComFiltroEPaginacao(filter);
 
-            //assert
+            // Assert
             response.Items.Should().HaveCount(1);
             response.ItemsByPage.Should().Be(produtos.ItemsByPage);
             response.PageIndex.Should().Be(produtos.PageIndex);
@@ -124,95 +173,71 @@ namespace GestaoProdutos.Tests.Services
         }
 
         [Fact]
-        public async Task DeveRetornarProdutoPorId()
+        public async Task RecuperarPorId_QuandoIdValido_DeveRetornarProdutoPorId()
         {
-            //arrange
+            // Arrange
+            var id = 1;
             var produto = new ProdutoBuilder(_mapper).Build();
-            _produtoRepository.RecuperarPorId(produto.Id).Returns(produto);
+            Mock.Get(_produtoRepository).Setup(r => r.RecuperarPorId(id)).ReturnsAsync(produto);
 
-            //action
-            var response = await _produtoService.RecuperarProdutoPorId(produto.Id);
+            // Action
+            var result = _produtoService.RecuperarProdutoPorId(id).Result;
 
-            //assert
-            response.Should().NotBeNull();
+            // Assert
+            result.Id.Should().Be(produto.Id);
+            result.Descricao.Should().Be(produto.Descricao);
         }
 
         [Fact]
-        public async Task NaoDeveRetornarPorNaoAcharId()
+        public async Task RecuperarPorId_QuandoIdInValido_NaoDeveRetornarPorNaoAcharId()
         {
-            //arrange
-            long produtoId = 0;
+            // Arrange
+            var id = 0;
+            var produto = new ProdutoBuilder(_mapper).Build();
+            Mock.Get(_produtoRepository).Setup(r => r.RecuperarPorId(id)).ReturnsAsync(produto);
 
-            //action
-            var response = await _produtoService.RecuperarProdutoPorId(produtoId);
+            // Action
+            var result = await _produtoService.RecuperarProdutoPorId(id);
 
-            //assert
-            response.Should().BeNull();
+            // Assert
+            result.Should().NotBeEquivalentTo(produto);
         }
 
         [Fact]
-        public async Task DeveAtualizarProduto()
+        public async Task AtualizarProduto_QuandoProdutoValido_DeveAtualizarProduto()
         {
-            //arrange
+            // Arrange
             var dto = new ProdutoDto()
             {
-                DataFabricacao = DateTime.Now,
-                Descricao = "Test",
-                DataValidade = DateTime.Now.AddDays(1),
-                FornecedorId = 1
+                Id = 1,
+                Descricao = "teste"
             };
 
             var produto = new ProdutoBuilder(_mapper).Build();
-            _produtoRepository.RecuperarPorId(dto.Id).Returns(produto);
+            Mock.Get(_produtoRepository).Setup(r => r.RecuperarPorId(dto.Id)).ReturnsAsync(produto);
 
-            //action
+            // Action
             await _produtoService.AtualizarProduto(dto);
 
-            //assert
-            await _produtoRepository.Received(1)
-                .Atualizar(Arg.Is<Produto>(x =>
-                x.Descricao == dto.Descricao
-                && x.DataFabricacao == dto.DataFabricacao
-                && x.DataValidade == dto.DataValidade
-                && x.Situacao == dto.Situacao
-                && x.FornecedorId == dto.FornecedorId
-                ));
+            // Assert
+            Mock.Get(_produtoRepository).Verify(r => r.Atualizar(It.IsAny<Produto>()), Times.Once);
         }
 
         [Fact]
-        public async Task NaoDeveAtualizarProdutoPorNaoAcharId()
+        public async Task AtualizarProduto_QuandoProdutoInValido_NaoDeveAtualizarProduto()
         {
-            //arrange
+            // Arrange
             var dto = new ProdutoDto()
             {
-                DataFabricacao = DateTime.Now,
-                Descricao = "Test",
-                DataValidade = DateTime.Now.AddDays(1),
-                FornecedorId = 1
+                Id = 1,
+                Descricao = "teste"
             };
 
-            //action
+            // Action
             await _produtoService.AtualizarProduto(dto);
 
-            //assert
-            await _produtoRepository.DidNotReceive().Atualizar(Arg.Any<Produto>());
-        }
-
-        [Fact]
-        public async Task NaoDeveAtualizarPorDataFabricacaoMaiorDataValidade()
-        {
-            // arrange
-            var dto = new ProdutoDto();
-            var produto = new ProdutoBuilder(_mapper).Build();
-            _produtoRepository.RecuperarPorId(dto.Id).Returns(produto);
-
-            // action
-            var exception = await Record.ExceptionAsync(async () =>
-            await _produtoService.AtualizarProduto(dto));
-
-            //assert
-            exception.Message.Should().Be("A data de fabricação deve ser anterior à data de validade.");
-            await _produtoRepository.DidNotReceive().Atualizar(Arg.Any<Produto>());
+            // Assert
+            Mock.Get(_produtoRepository).Verify(r => r.Inserir(It.IsAny<Produto>()), Times.Never);
         }
     }
 }

@@ -3,18 +3,31 @@ using FluentAssertions;
 using GestaoProdutos.Application.Dtos;
 using GestaoProdutos.Domain.Entities;
 using GestaoProdutos.Tests.Builders;
+using Moq;
+using NSubstitute;
 using System;
 using Xunit;
 
-namespace GestaoProdutos.Tests.Entidades
+namespace GestaoProdutos.Tests.Entities
 {
     public class ProdutoTests
     {
         private readonly IMapper _mapper;
 
-        public ProdutoTests(IMapper mapper)
+        public ProdutoTests()
         {
-            _mapper = mapper;
+            var mapperMock = new Mock<IMapper>();
+
+            mapperMock.Setup(m => m.Map<Produto>(It.IsAny<ProdutoDto>()))
+                .Returns(new Produto {
+                    DataFabricacao = DateTime.Now.Date,
+                    DataValidade = DateTime.Now.Date.AddDays(1),
+                    Descricao = "teste",
+                    FornecedorId = 1,
+                    Situacao = "A"
+                });
+
+            _mapper = mapperMock.Object;
         }
 
         [Fact]
@@ -25,8 +38,8 @@ namespace GestaoProdutos.Tests.Entidades
 
             var dto = new ProdutoDto
             {
-                DataFabricacao = DateTime.Now,
-                DataValidade = DateTime.Now.AddDays(1),
+                DataFabricacao = DateTime.Now.Date,
+                DataValidade = DateTime.Now.Date.AddDays(1),
                 Descricao = "teste",
                 FornecedorId = fornecedorId,
                 Situacao = "A"
@@ -76,9 +89,9 @@ namespace GestaoProdutos.Tests.Entidades
         {
             //arrange
             var produto = new ProdutoBuilder(_mapper)
-                .ComDataFabricacao(DateTime.Now.AddDays(1))
-                .ComDataValidade(DateTime.Now)
                 .Build();
+            produto.DataFabricacao = DateTime.Now.Date.AddDays(1);
+            produto.DataValidade = DateTime.Now.Date;
 
             //action
             var response = produto.IsValid();

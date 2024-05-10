@@ -3,6 +3,7 @@ using FluentAssertions;
 using GestaoProdutos.Application.Dtos;
 using GestaoProdutos.Domain.Entities;
 using GestaoProdutos.Tests.Builders;
+using Moq;
 using Xunit;
 
 namespace GestaoProdutos.Tests.Entities
@@ -11,9 +12,14 @@ namespace GestaoProdutos.Tests.Entities
     {
         private readonly IMapper _mapper;
 
-        public FornecedorTests(IMapper mapper)
+        public FornecedorTests()
         {
-            _mapper = mapper;
+            var mapperMock = new Mock<IMapper>();
+
+            mapperMock.Setup(m => m.Map<Fornecedor>(It.IsAny<FornecedorDto>()))
+                .Returns(new Fornecedor { Cnpj = "12354", Descricao = "Descricao" }); 
+
+            _mapper = mapperMock.Object;
         }
 
         [Fact]

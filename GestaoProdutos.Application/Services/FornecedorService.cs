@@ -20,6 +20,12 @@ namespace GestaoProdutos.Application.Services
             _mapper = mapper;
         }
 
+        public async Task<FornecedorDto> RecuperarFornecedorPorId(long id)
+        {
+            var fornecedor = await _fornecedorRepository.RecuperarPorId(id);
+            return _mapper.Map<FornecedorDto>(fornecedor);
+        }
+
         public async Task InserirFornecedor(FornecedorDto fornecedorDto)
         {
             var fornecedor = _mapper.Map<Fornecedor>(fornecedorDto);
@@ -38,17 +44,23 @@ namespace GestaoProdutos.Application.Services
             });
         }
 
-        public async Task Update(FornecedorDto fornecedorDto)
+        public async Task AtualizarFornecedor(FornecedorDto fornecedorDto)
         {
-            var fornecedores = await _fornecedorRepository.RecuperarPorId(fornecedorDto.Id);
-            if (fornecedores == null)
+            var fornecedor = await _fornecedorRepository.RecuperarPorId(fornecedorDto.Id);
+            if (fornecedor == null)
             {
                 await InserirFornecedor(fornecedorDto);
                 return;
             }
 
-            fornecedores = _mapper.Map<Fornecedor>(fornecedorDto);
-            await _fornecedorRepository.Atualizar(fornecedores);
+            _mapper.Map(fornecedorDto, fornecedor);
+            await _fornecedorRepository.Atualizar(fornecedor);
+        }
+
+        public async Task<FornecedorDto> RecuperarFornecedorPorCnpj(string cnpj)
+        {
+            var fornecedor = await _fornecedorRepository.RecuperarPorCnpj(cnpj);
+            return _mapper.Map<FornecedorDto>(fornecedor);
         }
     }
 }

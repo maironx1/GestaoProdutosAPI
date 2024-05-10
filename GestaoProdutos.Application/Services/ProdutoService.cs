@@ -55,7 +55,7 @@ namespace GestaoProdutos.Application.Services
             await _produtoRepository.Atualizar(produto);
         }
 
-        public async Task ExcluirProduto(long id)
+        public async Task RemoverProduto(long id)
         {
             var produto = await _produtoRepository.RecuperarPorId(id);
 

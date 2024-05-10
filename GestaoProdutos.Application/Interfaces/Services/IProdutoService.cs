@@ -9,7 +9,7 @@ namespace GestaoProdutos.Application.Interfaces.Services
     {
         Task InserirProduto(ProdutoDto produtoDto);
         Task AtualizarProduto(ProdutoDto produtoDto);
-        Task ExcluirProduto(long id);
+        Task RemoverProduto(long id);
         Task<IEnumerable<ProdutoDto>> ListarTodosProdutos();
         Task<PaginacaoDto<ProdutoDto>> ListarProdutosComFiltroEPaginacao(ProdutoFiltro filtro);
         Task<ProdutoDto> RecuperarProdutoPorId(long id);

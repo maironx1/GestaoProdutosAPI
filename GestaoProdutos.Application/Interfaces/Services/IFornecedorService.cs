@@ -6,8 +6,10 @@ namespace GestaoProdutos.Application.Interfaces.Services
 {
     public interface IFornecedorService
     {
-        public Task InserirFornecedor(FornecedorDto fornecedorDto);
-        public Task<IEnumerable<FornecedorDto>> ListarTodosFornecedores();
-        public Task Update(FornecedorDto fornecedorDto);
+        Task InserirFornecedor(FornecedorDto fornecedorDto);
+        Task<IEnumerable<FornecedorDto>> ListarTodosFornecedores();
+        Task AtualizarFornecedor(FornecedorDto fornecedorDto);
+        Task<FornecedorDto> RecuperarFornecedorPorId(long id);
+        Task<FornecedorDto> RecuperarFornecedorPorCnpj(string cnpj);
     }
 }

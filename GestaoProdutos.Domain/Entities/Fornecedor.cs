@@ -2,7 +2,7 @@
 {
     public class Fornecedor : EntityBase
     {
-        public string Descricao { get; private set; }
-        public string Cnpj { get; private set; }
+        public string Descricao { get; set; }
+        public string Cnpj { get; set; }
     }
 }

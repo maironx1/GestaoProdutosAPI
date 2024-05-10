@@ -7,9 +7,9 @@ namespace GestaoProdutos.Tests.Builders
 {
     public class ProdutoBuilder
     {
-        private string _descricao = "Product test";
-        private DateTime _dataFabricacao = DateTime.Now;
-        private DateTime _dataValidade = DateTime.Now.AddDays(1);
+        private string _descricao = "Produto de Teste";
+        private DateTime _dataFabricacao = DateTime.Now.Date;
+        private DateTime _dataValidade = DateTime.Now.Date;
         private long _fornecedorId = 1;
         private string _situacao = "A";
 
